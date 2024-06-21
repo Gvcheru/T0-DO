@@ -1,13 +1,25 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify
+from models import db, Task
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
+db.init_app(app)
 
-# Serve the index.html file
 @app.route('/')
 def index():
-    return send_from_directory('', 'index.html')
+    return render_template('index.html')
 
-# Serve static files
-@app.route('/static/<path:path>')
-def send_static(path):
-    return send_from_directory('static', path)
+@app.route('/tasks', methods=['GET', 'POST'])
+def tasks():
+    if request.method == 'GET':
+        tasks = Task.query.all()
+        return jsonify([task.to_dict() for task in tasks])
+    elif request.method == 'POST':
+        data = request.get_json()
+        task = Task(title=data['title'], description=data['description'], date=data['date'])
+        db.session.add(task)
+        db.session.commit()
+        return jsonify(task.to_dict()), 201
+
+if __name__ == '__main__':
+    app.run(debug=True)
