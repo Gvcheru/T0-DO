@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Scheduler</title>
+    <style>
+        /* Add some basic styling */
+        body { font-family: Arial, sans-serif; }
+        .container { width: 80%; margin: auto; }
+        .task { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task Scheduler</h1>
+        <input type="text" id="taskInput" placeholder="New task">
+        <button onclick="addTask()">Add Task</button>
+        <ul id="taskList"></ul>
+    </div>
+    <script>
+        async function fetchTasks() {
+            const response = await fetch('/tasks');
+            const tasks = await response.json();
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.textContent = task;
+                li.className = 'task';
+                taskList.appendChild(li);
+            });
+        }
+
+        async function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const task = taskInput.value;
+            if (task) {
+                await fetch('/tasks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ task })
+                });
+                taskInput.value = '';
+                fetchTasks();
+            }
+        }
+
+        window.onload = fetchTasks;
+    </script>
+</body>
+</html>

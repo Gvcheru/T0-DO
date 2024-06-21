@@ -7,7 +7,7 @@ db.init_app(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('templates/index.html')
 
 @app.route('/tasks', methods=['GET', 'POST'])
 def tasks():
